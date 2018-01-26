@@ -32,6 +32,15 @@ func (m *Mutex) Lock() {
 	}
 }
 
+func (m *Mutex) LockOrFail() error {
+	m.PruneExpired()
+	err := db.put(m.Name, time.Now().Unix())
+
+	if err == nil {
+		return err
+	}
+}
+
 // Unlock will delete an item in a DynamoDB table.
 func (m *Mutex) Unlock() {
 	for {
