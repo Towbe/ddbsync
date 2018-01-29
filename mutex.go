@@ -36,7 +36,7 @@ func (m *Mutex) LockOrFail() error {
 	m.PruneExpired()
 	err := db.put(m.Name, time.Now().Unix())
 
-	if err == nil {
+	if err != nil {
 		return err
 	}
 }
