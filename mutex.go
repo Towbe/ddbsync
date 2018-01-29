@@ -39,6 +39,8 @@ func (m *Mutex) LockOrFail() error {
 	if err != nil {
 		return err
 	}
+
+	return nil
 }
 
 // Unlock will delete an item in a DynamoDB table.
