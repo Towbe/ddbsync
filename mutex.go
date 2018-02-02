@@ -14,6 +14,7 @@ import (
 	"github.com/Towbe/TowbeApi/utils/helpers/env"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/Towbe/TowbeApi/utils/log"
 )
 
 type MutexKey struct {
@@ -71,7 +72,8 @@ func (m *Mutex) Lock() error {
 }
 
 func (m *Mutex) LockOrFail() error {
-	m.PruneExpired()
+	//m.PruneExpired()
+	log.Log("Locking " + m.Id)
 	putItemInput := &dynamodb.PutItemInput{
 		TableName:	aws.String("towbe_locks"),
 	}
@@ -125,4 +127,22 @@ func (m *Mutex) PruneExpired() error {
 	getItemInput.SetKey(marshalledKey)
 	_, err = db.GetItem(getItemInput)
 	return err
+}
+
+func (m *Mutex) CheckIfExists() bool {
+	getItemInput := &dynamodb.GetItemInput{
+		TableName:	aws.String("towbe_locks"),
+	}
+
+	marshalledKey, err := dynamodbattribute.MarshalMap(m.MutexKey)
+	if err != nil {
+		return false
+	}
+
+	getItemInput.SetKey(marshalledKey)
+	output, err := db.GetItem(getItemInput)
+	if output.String() == "" {
+		return true
+	}
+	return false
 }
